@@ -29,12 +29,12 @@ func SMP(checkerboard [][]int, numProcs int) {
 			if i == 0 {
 				belowChannel := make(chan []int)
 				bottomChannels = append(bottomChannels, belowChannel)
-				go spsp1(checkerboard, belowChannel, true)
+				go spsp1(checkerboard[:rpp], belowChannel, true)
 				// spsp1
 			} else if i == numProcs-1 { // last
 				aboveChannel := make(chan []int)
 				topChannels = append(topChannels, aboveChannel)
-				go spsp1(checkerboard, aboveChannel, false)
+				go spsp1(checkerboard[rpp:], aboveChannel, false)
 				//spsp1
 			} else {
 				aboveChannel := make(chan []int)
@@ -49,18 +49,18 @@ func SMP(checkerboard [][]int, numProcs int) {
 		for i, topSlice := range topChannels {
 			slice := <-topSlice
 			if notStable {
-				addToA(checkerboard[(1+i)*rpp], slice)
+				addToA(checkerboard[(i+1)*rpp-1], slice)
 			} else {
-				notStable = addToA(checkerboard[(1+i)*rpp], slice)
+				notStable = addToA(checkerboard[(i+1)*rpp-1], slice)
 			}
 		}
 		// check if coins went over on the bottom channel
 		for i, bottomSlice := range bottomChannels {
 			slice := <-bottomSlice
 			if notStable {
-				addToA(checkerboard[((1+i)*rpp)-1], slice)
+				addToA(checkerboard[((1+i)*rpp)+1], slice)
 			} else {
-				notStable = addToA(checkerboard[((1+i)*rpp)-1], slice)
+				notStable = addToA(checkerboard[((1+i)*rpp)+1], slice)
 			}
 		}
 
